@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon 广告竞价调整计算器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+  <style>
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+    }
+    .theme-light input[type="range"] { background: #e2e8f0; }
+    .theme-dark input[type="range"] { background: #374151; }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .theme-light input[type="range"]::-webkit-slider-thumb { background: #f59e0b; }
+    .theme-dark input[type="range"]::-webkit-slider-thumb { background: #fbbf24; }
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { opacity: 1; }
+    .placement-card { transition: all 0.2s ease; }
+    .placement-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .bar-fill { transition: width 0.3s ease; }
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  </style>
+</head>
+<body class="theme-light bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased min-h-screen">
+
+  <div class="max-w-2xl mx-auto p-4 md:p-6 space-y-4">
+
+    <!-- Header -->
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center shadow">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-xl font-bold">Amazon 广告竞价调整计算器</h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400">设置组内竞价和目标竞价，自动计算溢价百分比</p>
+          </div>
+        </div>
+        <!-- Theme Toggle -->
+        <button id="themeToggle" onclick="toggleTheme()"
+          class="w-9 h-9 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+          title="切换深色/浅色模式">
+          <span id="themeIcon">🌙</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Base Bid -->
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-sm font-bold flex items-center gap-1.5">📦 组内竞价 (Base Bid)</h2>
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">广告组默认竞价，所有位置的计算基础</p>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="text-xl font-bold text-amber-600 dark:text-amber-400">$</span>
+          <input type="number" id="baseBid" value="1.50" min="0.02" max="100" step="0.01"
+            class="w-28 text-3xl font-extrabold text-center bg-gray-50 dark:bg-gray-700 border-2 border-amber-400 dark:border-amber-500 rounded-xl px-2 py-1 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            oninput="onBaseBidChange()">
+        </div>
+      </div>
+      <input type="range" id="baseBidSlider" min="0.02" max="10" step="0.01" value="1.50"
+        class="w-full" oninput="onBaseBidSliderChange()">
+      <div class="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
+        <span>$0.02</span>
+        <span>$5.00</span>
+        <span>$10.00</span>
+      </div>
+    </div>
+
+    <!-- Placement Cards -->
+    <div class="space-y-3">
+
+      <!-- Top of Search -->
+      <div class="placement-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🔝</span>
+            <div>
+              <h3 class="text-sm font-bold">搜索结果顶部 (Top of Search)</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">首页搜索结果最上方位置</p>
+            </div>
+          </div>
+          <span class="badge bg-rose-500 text-white" id="badge-top">+0%</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">目标竞价</label>
+            <div class="flex items-center gap-1">
+              <span class="text-sm font-bold text-gray-400">$</span>
+              <input type="number" id="target-top" value="1.50" min="0.02" max="1000" step="0.01"
+                class="w-full text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400"
+                oninput="onTargetChange('top')">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">溢价百分比</label>
+            <div class="flex items-center gap-1">
+              <input type="number" id="premium-top" value="0" min="0" max="900" step="1"
+                class="w-full text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:border-rose-400"
+                oninput="onPremiumChange('top')">
+              <span class="text-sm font-bold text-gray-400">%</span>
+            </div>
+          </div>
+        </div>
+        <input type="range" id="slider-top" min="0" max="900" step="1" value="0"
+          class="w-full mt-3" oninput="onSliderChange('top')">
+        <div class="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
+          <span>0%</span><span>300%</span><span>600%</span><span>900%</span>
+        </div>
+      </div>
+
+      <!-- Product Pages -->
+      <div class="placement-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">📄</span>
+            <div>
+              <h3 class="text-sm font-bold">商品页面 (Product Pages)</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">商品详情页上的广告位</p>
+            </div>
+          </div>
+          <span class="badge bg-blue-500 text-white" id="badge-product">+0%</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">目标竞价</label>
+            <div class="flex items-center gap-1">
+              <span class="text-sm font-bold text-gray-400">$</span>
+              <input type="number" id="target-product" value="1.50" min="0.02" max="1000" step="0.01"
+                class="w-full text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                oninput="onTargetChange('product')">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">溢价百分比</label>
+            <div class="flex items-center gap-1">
+              <input type="number" id="premium-product" value="0" min="0" max="900" step="1"
+                class="w-full text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
+                oninput="onPremiumChange('product')">
+              <span class="text-sm font-bold text-gray-400">%</span>
+            </div>
+          </div>
+        </div>
+        <input type="range" id="slider-product" min="0" max="900" step="1" value="0"
+          class="w-full mt-3" oninput="onSliderChange('product')">
+        <div class="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
+          <span>0%</span><span>300%</span><span>600%</span><span>900%</span>
+        </div>
+      </div>
+
+      <!-- Rest of Search -->
+      <div class="placement-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🔍</span>
+            <div>
+              <h3 class="text-sm font-bold">搜索结果其余位置 (Rest of Search)</h3>
+              <p class="text-xs text-gray-500 dark:text-gray-400">首页以外的搜索结果位置</p>
+            </div>
+          </div>
+          <span class="badge bg-emerald-500 text-white" id="badge-rest">+0%</span>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">目标竞价</label>
+            <div class="flex items-center gap-1">
+              <span class="text-sm font-bold text-gray-400">$</span>
+              <input type="number" id="target-rest" value="1.50" min="0.02" max="1000" step="0.01"
+                class="w-full text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+                oninput="onTargetChange('rest')">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block font-medium">溢价百分比</label>
+            <div class="flex items-center gap-1">
+              <input type="number" id="premium-rest" value="0" min="0" max="900" step="1"
+                class="w-full text-lg font-bold bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+                oninput="onPremiumChange('rest')">
+              <span class="text-sm font-bold text-gray-400">%</span>
+            </div>
+          </div>
+        </div>
+        <input type="range" id="slider-rest" min="0" max="900" step="1" value="0"
+          class="w-full mt-3" oninput="onSliderChange('rest')">
+        <div class="flex justify-between text-xs text-gray-400 dark:text-gray-500 mt-1">
+          <span>0%</span><span>300%</span><span>600%</span><span>900%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Comparison Chart -->
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-5 shadow-sm">
+      <h2 class="text-sm font-bold mb-4 flex items-center gap-1.5">📊 竞价对比</h2>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500 dark:text-gray-400 w-20 text-right shrink-0 font-medium">组内竞价</span>
+          <div class="flex-1 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
+            <div id="bar-base" class="bar-fill h-full rounded-lg bg-gray-400 dark:bg-gray-500" style="width:30%;"></div>
+            <span id="bar-label-base" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold">$1.50</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500 dark:text-gray-400 w-20 text-right shrink-0 font-medium">搜索顶部</span>
+          <div class="flex-1 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
+            <div id="bar-top" class="bar-fill h-full rounded-lg bg-rose-500" style="width:30%;"></div>
+            <span id="bar-label-top" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold">$1.50</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500 dark:text-gray-400 w-20 text-right shrink-0 font-medium">商品页面</span>
+          <div class="flex-1 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
+            <div id="bar-product" class="bar-fill h-full rounded-lg bg-blue-500" style="width:30%;"></div>
+            <span id="bar-label-product" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold">$1.50</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500 dark:text-gray-400 w-20 text-right shrink-0 font-medium">其余位置</span>
+          <div class="flex-1 h-8 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
+            <div id="bar-rest" class="bar-fill h-full rounded-lg bg-emerald-500" style="width:30%;"></div>
+            <span id="bar-label-rest" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-bold">$1.50</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formula -->
+    <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 shadow-sm">
+      <h2 class="text-sm font-bold mb-2 flex items-center gap-1.5">💡 计算公式</h2>
+      <div class="text-xs text-gray-600 dark:text-gray-400 space-y-1.5">
+        <p><strong class="text-gray-800 dark:text-gray-200">目标竞价</strong> = 组内竞价 × (1 + 溢价百分比 ÷ 100)</p>
+        <p><strong class="text-gray-800 dark:text-gray-200">溢价百分比</strong> = (目标竞价 ÷ 组内竞价 − 1) × 100</p>
+        <p class="pt-1 text-amber-700 dark:text-amber-400 font-medium">⚠️ 亚马逊溢价范围：0% ~ 900%，仅支持整数</p>
+      </div>
+    </div>
+
+    <p class="text-center text-xs text-gray-400 dark:text-gray-600 pb-4">Amazon Ads Bid Calculator · 纯前端工具，数据不会上传</p>
+
+  </div>
+
+  <script>
+    const placements = ['top', 'product', 'rest'];
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const body = document.body;
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        html.classList.remove('dark');
+        body.classList.remove('theme-dark');
+        body.classList.add('theme-light');
+        document.getElementById('themeIcon').textContent = '🌙';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        body.classList.remove('theme-light');
+        body.classList.add('theme-dark');
+        document.getElementById('themeIcon').textContent = '☀️';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    (function() {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.classList.add('dark');
+        document.body.classList.remove('theme-light');
+        document.body.classList.add('theme-dark');
+        document.getElementById('themeIcon').textContent = '☀️';
+      }
+    })();
+
+    function getBaseBid() {
+      return parseFloat(document.getElementById('baseBid').value) || 0.02;
+    }
+
+    function onBaseBidChange() {
+      const val = parseFloat(document.getElementById('baseBid').value);
+      if (isNaN(val) || val < 0.02) return;
+      document.getElementById('baseBidSlider').value = Math.min(val, 10);
+      placements.forEach(p => {
+        const premium = parseFloat(document.getElementById('premium-' + p).value) || 0;
+        const target = val * (1 + premium / 100);
+        document.getElementById('target-' + p).value = target.toFixed(2);
+      });
+      updateVisuals();
+    }
+
+    function onBaseBidSliderChange() {
+      const val = parseFloat(document.getElementById('baseBidSlider').value);
+      document.getElementById('baseBid').value = val.toFixed(2);
+      onBaseBidChange();
+    }
+
+    function onTargetChange(placement) {
+      const baseBid = getBaseBid();
+      const target = parseFloat(document.getElementById('target-' + placement).value);
+      if (isNaN(target) || target < 0) return;
+
+      let premium = Math.round((target / baseBid - 1) * 100);
+      if (premium < 0) premium = 0;
+      if (premium > 900) premium = 900;
+
+      document.getElementById('premium-' + placement).value = premium;
+      document.getElementById('slider-' + placement).value = premium;
+      updateVisuals();
+    }
+
+    function onPremiumChange(placement) {
+      const baseBid = getBaseBid();
+      let premium = parseInt(document.getElementById('premium-' + placement).value);
+      if (isNaN(premium)) return;
+      if (premium < 0) premium = 0;
+      if (premium > 900) premium = 900;
+
+      const target = baseBid * (1 + premium / 100);
+      document.getElementById('target-' + placement).value = target.toFixed(2);
+      document.getElementById('slider-' + placement).value = premium;
+      updateVisuals();
+    }
+
+    function onSliderChange(placement) {
+      const premium = parseInt(document.getElementById('slider-' + placement).value);
+      document.getElementById('premium-' + placement).value = premium;
+      onPremiumChange(placement);
+    }
+
+    function updateVisuals() {
+      const baseBid = getBaseBid();
+      let maxVal = baseBid;
+      placements.forEach(p => {
+        const target = parseFloat(document.getElementById('target-' + p).value) || baseBid;
+        if (target > maxVal) maxVal = target;
+      });
+
+      const basePercent = (baseBid / maxVal) * 100;
+      document.getElementById('bar-base').style.width = Math.max(basePercent, 5) + '%';
+      document.getElementById('bar-label-base').textContent = '$' + baseBid.toFixed(2);
+
+      placements.forEach(p => {
+        const target = parseFloat(document.getElementById('target-' + p).value) || baseBid;
+        const premium = parseInt(document.getElementById('premium-' + p).value) || 0;
+        const percent = (target / maxVal) * 100;
+        document.getElementById('bar-' + p).style.width = Math.max(percent, 5) + '%';
+        document.getElementById('bar-label-' + p).textContent = '$' + target.toFixed(2);
+        document.getElementById('badge-' + p).textContent = '+' + premium + '%';
+      });
+    }
+
+    updateVisuals();
+  </script>
+
+</body>
+</html>

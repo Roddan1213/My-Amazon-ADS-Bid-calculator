@@ -20,7 +20,7 @@
       --accent-green-hover: #047857;
       --badge-blue-bg: #eff6ff;
       --badge-blue-text: #2563eb;
-      --slider-track: #e2e8f0;
+      --slider-empty-track: #e2e8f0;
     }
 
     body.dark-mode {
@@ -36,7 +36,7 @@
       --border-color: #1e293b;
       --badge-blue-bg: #1e3a8a;
       --badge-blue-text: #bfdbfe;
-      --slider-track: #334155;
+      --slider-empty-track: #334155;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,7 +58,6 @@
       gap: 16px;
     }
 
-    /* 顶部标题栏 */
     .header-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -96,7 +95,6 @@
       font-weight: 500;
     }
 
-    /* 通用卡片样式 */
     .step-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -105,9 +103,7 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
-    .step-header {
-      margin-bottom: 16px;
-    }
+    .step-header { margin-bottom: 16px; }
 
     .step-title {
       font-size: 1.02rem;
@@ -123,7 +119,6 @@
       margin-top: 4px;
     }
 
-    /* Step 1: 基础竞价 */
     .bid-input-row {
       display: flex;
       align-items: center;
@@ -181,19 +176,19 @@
       color: var(--primary);
     }
 
-    /* 滑块通用样式 */
+    /* 滑块样式与渐变填充 */
     .slider-box {
       position: relative;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     input[type="range"] {
       width: 100%;
       height: 6px;
-      background: var(--slider-track);
       border-radius: 4px;
       outline: none;
       -webkit-appearance: none;
+      background: var(--slider-empty-track);
       cursor: pointer;
     }
 
@@ -223,15 +218,16 @@
       transition: 0.15s;
     }
 
-    .slider-ticks {
+    /* 极值标识，仅保留起止端点 */
+    .slider-limits {
       display: flex;
       justify-content: space-between;
       font-size: 0.72rem;
       color: var(--text-muted);
-      margin-top: 6px;
+      margin-top: 5px;
+      font-weight: 500;
     }
 
-    /* Step 2: 策略网格 */
     .strategy-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -273,7 +269,6 @@
       line-height: 1.4;
     }
 
-    /* Step 3: 广告位卡片 */
     .placements-wrap {
       display: flex;
       flex-direction: column;
@@ -327,7 +322,7 @@
 
     @media (min-width: 650px) {
       .p-body-grid {
-        grid-template-columns: 145px 155px 1fr;
+        grid-template-columns: 140px 150px 1fr;
       }
     }
 
@@ -335,7 +330,6 @@
       font-size: 0.74rem;
       color: var(--text-muted);
       margin-bottom: 4px;
-      display: block;
     }
 
     .pct-input-wrap {
@@ -352,8 +346,8 @@
       border: none;
       background: transparent;
       outline: none;
-      font-size: 1rem;
-      font-weight: 700;
+      font-size: 0.95rem;
+      font-weight: 600;
       color: var(--text-main);
       padding: 0 10px;
       width: 100%;
@@ -367,7 +361,23 @@
       display: flex;
       align-items: center;
       font-size: 0.8rem;
-      font-weight: 600;
+    }
+
+    .effective-bid-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .effective-bid-col .e-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .effective-bid-col .e-val {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
     }
 
     .p-result-col {
@@ -408,7 +418,6 @@
       font-weight: 600;
     }
 
-    /* Step 4: 汇总列表 */
     .summary-list {
       display: flex;
       flex-direction: column;
@@ -433,9 +442,7 @@
       gap: 8px;
     }
 
-    .sum-values {
-      text-align: right;
-    }
+    .sum-values { text-align: right; }
 
     .sum-range {
       font-size: 1.15rem;
@@ -448,7 +455,6 @@
       color: var(--text-muted);
     }
 
-    /* 底部规则说明 */
     .footer-rule-box {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -472,7 +478,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header-card">
       <div class="header-title">
         <h1>Amazon 广告竞价与策略计算器</h1>
@@ -481,7 +486,7 @@
       <button class="theme-toggle-btn" id="themeToggleBtn">🌙 深色模式</button>
     </div>
 
-    <!-- Step 1: 基础竞价 -->
+    <!-- Step 1 -->
     <div class="step-card">
       <div class="step-header">
         <div class="step-title">🏷️ 1. 设置组内默认基准竞价 (Base Bid)</div>
@@ -501,18 +506,14 @@
       </div>
       <div class="slider-box">
         <input type="range" id="baseBidSlider" class="green-slider" min="0.02" max="10.00" step="0.01" value="1.50">
-        <div class="slider-ticks">
+        <div class="slider-limits">
           <span>$0.02</span>
-          <span>$1.00</span>
-          <span>$2.50</span>
-          <span>$5.00</span>
-          <span>$7.50</span>
           <span>$10.00</span>
         </div>
       </div>
     </div>
 
-    <!-- Step 2: 竞价策略选择 -->
+    <!-- Step 2 -->
     <div class="step-card">
       <div class="step-header">
         <div class="step-title">⚙️ 2. 选择广告活动竞价策略 (Bidding Strategy)</div>
@@ -550,15 +551,15 @@
       </div>
     </div>
 
-    <!-- Step 3: 位置溢价与最终扣费预估 -->
+    <!-- Step 3 -->
     <div class="step-card">
       <div class="step-header">
         <div class="step-title">📍 3. 位置溢价与最终扣费预估 (Placement Multipliers)</div>
-        <div class="step-desc">三大广告位均支持 0%~900% 溢价调节（最小单位 1%），支持修改百分比或目标竞价进行双向实时反推。</div>
+        <div class="step-desc">三大广告位均支持 0%~900% 溢价调节（步长 1%），输入框与滑块实时联动。</div>
       </div>
 
       <div class="placements-wrap">
-        <!-- 1. Top of search -->
+        <!-- 1. Top of Search -->
         <div class="placement-card">
           <div class="p-top-row">
             <div class="p-name">🎯 搜索结果顶部 (Top of Search - first page)</div>
@@ -573,12 +574,9 @@
                 <span>%</span>
               </div>
             </div>
-            <div class="p-input-col">
-              <label>目标有效竞价 (EFFECTIVE)</label>
-              <div class="pct-input-wrap">
-                <span>$</span>
-                <input type="number" id="topEffectiveInput" step="0.01" value="1.50">
-              </div>
+            <div class="effective-bid-col">
+              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
+              <span class="e-val" id="topEffective">$1.50</span>
             </div>
             <div class="p-result-col">
               <div class="p-res-left">
@@ -591,12 +589,8 @@
           </div>
           <div class="slider-box">
             <input type="range" id="topSlider" class="blue-slider" min="0" max="900" step="1" value="0">
-            <div class="slider-ticks">
+            <div class="slider-limits">
               <span>0%</span>
-              <span>150%</span>
-              <span>300%</span>
-              <span>500%</span>
-              <span>700%</span>
               <span>900%</span>
             </div>
           </div>
@@ -617,12 +611,9 @@
                 <span>%</span>
               </div>
             </div>
-            <div class="p-input-col">
-              <label>目标有效竞价 (EFFECTIVE)</label>
-              <div class="pct-input-wrap">
-                <span>$</span>
-                <input type="number" id="restEffectiveInput" step="0.01" value="1.50">
-              </div>
+            <div class="effective-bid-col">
+              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
+              <span class="e-val" id="restEffective">$1.50</span>
             </div>
             <div class="p-result-col">
               <div class="p-res-left">
@@ -635,12 +626,8 @@
           </div>
           <div class="slider-box">
             <input type="range" id="restSlider" class="blue-slider" min="0" max="900" step="1" value="0">
-            <div class="slider-ticks">
+            <div class="slider-limits">
               <span>0%</span>
-              <span>150%</span>
-              <span>300%</span>
-              <span>500%</span>
-              <span>700%</span>
               <span>900%</span>
             </div>
           </div>
@@ -661,12 +648,9 @@
                 <span>%</span>
               </div>
             </div>
-            <div class="p-input-col">
-              <label>目标有效竞价 (EFFECTIVE)</label>
-              <div class="pct-input-wrap">
-                <span>$</span>
-                <input type="number" id="productEffectiveInput" step="0.01" value="1.50">
-              </div>
+            <div class="effective-bid-col">
+              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
+              <span class="e-val" id="productEffective">$1.50</span>
             </div>
             <div class="p-result-col">
               <div class="p-res-left">
@@ -679,12 +663,8 @@
           </div>
           <div class="slider-box">
             <input type="range" id="productSlider" class="blue-slider" min="0" max="900" step="1" value="0">
-            <div class="slider-ticks">
+            <div class="slider-limits">
               <span>0%</span>
-              <span>150%</span>
-              <span>300%</span>
-              <span>500%</span>
-              <span>700%</span>
               <span>900%</span>
             </div>
           </div>
@@ -692,7 +672,7 @@
       </div>
     </div>
 
-    <!-- Step 4: 各广告位最终竞价区间汇总 -->
+    <!-- Step 4 -->
     <div class="step-card">
       <div class="step-header">
         <div class="step-title">📊 4. 各广告位最终竞价区间汇总</div>
@@ -722,11 +702,11 @@
       </div>
     </div>
 
-    <!-- 底部公式与说明 -->
+    <!-- Rule Footer -->
     <div class="footer-rule-box">
       <h4>💡 亚马逊出价公式与最新规则要点：</h4>
-      <p>1. <strong>三大位置独立溢价</strong>：搜索结果顶部、其余搜索结果、商品页面全位置均支持 0% ~ 900% 整数逐级微调（步长 1%）。</p>
-      <p>2. <strong>双向联动推导</strong>：目标有效竞价 = 基础竞价 × (1 + 位置溢价%)；调整目标有效竞价时，系统自动反推对应溢价比例。</p>
+      <p>1. <strong>三大位置独立溢价</strong>：搜索结果顶部、其余搜索结果、商品页面全位置均支持 0% ~ 900% 整数调节。</p>
+      <p>2. <strong>目标有效竞价</strong> = 基础竞价 × (1 + 位置溢价%)。</p>
       <p>3. <strong>动态竞价上浮新规</strong>：在“提高和降低”策略下，官方已统一全位置的最高上浮比例为 <strong>+100% (最高 2.0x)</strong>，不存在过往商品页仅 50% 的限制。</p>
       <p>4. <strong>基于规则的竞价 (Rule-based)</strong>：以设定目标 ROAS 为准则，系统调优出价最高可达位置溢价后金额的 <strong>5 倍 (5.0x)</strong>。</p>
     </div>
@@ -752,7 +732,7 @@
         input: document.getElementById('topPctInput'),
         slider: document.getElementById('topSlider'),
         badge: document.getElementById('topBadge'),
-        effectiveInput: document.getElementById('topEffectiveInput'),
+        effective: document.getElementById('topEffective'),
         range: document.getElementById('topRange'),
         detail: document.getElementById('topDetail'),
         multiple: document.getElementById('topMultiple'),
@@ -766,7 +746,7 @@
         input: document.getElementById('restPctInput'),
         slider: document.getElementById('restSlider'),
         badge: document.getElementById('restBadge'),
-        effectiveInput: document.getElementById('restEffectiveInput'),
+        effective: document.getElementById('restEffective'),
         range: document.getElementById('restRange'),
         detail: document.getElementById('restDetail'),
         multiple: document.getElementById('restMultiple'),
@@ -780,7 +760,7 @@
         input: document.getElementById('productPctInput'),
         slider: document.getElementById('productSlider'),
         badge: document.getElementById('productBadge'),
-        effectiveInput: document.getElementById('productEffectiveInput'),
+        effective: document.getElementById('productEffective'),
         range: document.getElementById('productRange'),
         detail: document.getElementById('productDetail'),
         multiple: document.getElementById('productMultiple'),
@@ -791,66 +771,65 @@
       }
     ];
 
-    // Base Bid input / slider
+    // 更新滑块随拖动进度实时填充的高亮颜色
+    function updateSliderFill(slider, activeColor, trackColor) {
+      const min = parseFloat(slider.min) || 0;
+      const max = parseFloat(slider.max) || 100;
+      const val = parseFloat(slider.value) || 0;
+      const pct = ((val - min) / (max - min)) * 100;
+      slider.style.background = `linear-gradient(to right, ${activeColor} 0%, ${activeColor} ${pct}%, ${trackColor} ${pct}%, ${trackColor} 100%)`;
+    }
+
+    function syncAllSliders() {
+      const isDark = document.body.classList.contains('dark-mode');
+      const trackColor = isDark ? '#334155' : '#e2e8f0';
+      const greenColor = isDark ? '#10b981' : '#059669';
+      const blueColor = isDark ? '#3b82f6' : '#2563eb';
+
+      updateSliderFill(baseBidSlider, greenColor, trackColor);
+      placements.forEach(p => {
+        updateSliderFill(p.slider, blueColor, trackColor);
+      });
+    }
+
     baseBidInput.addEventListener('input', (e) => {
       let val = parseFloat(e.target.value) || 0;
       state.baseBid = val;
       baseBidSlider.value = Math.min(val, 10.00);
-      render('base');
+      render();
     });
 
     baseBidSlider.addEventListener('input', (e) => {
       let val = parseFloat(e.target.value);
       state.baseBid = val;
       baseBidInput.value = val.toFixed(2);
-      render('base');
+      render();
     });
 
     function setBaseBid(amount) {
       state.baseBid = amount;
       baseBidInput.value = amount.toFixed(2);
       baseBidSlider.value = amount;
-      render('base');
+      render();
     }
 
-    // 双向同步绑定
     placements.forEach(p => {
-      // 1. 修改百分比输入框 -> 更新滑块与有效竞价
       p.input.addEventListener('input', (e) => {
         let val = parseInt(e.target.value) || 0;
         if (val < 0) val = 0;
         if (val > 900) val = 900;
         state[p.key] = val;
         p.slider.value = val;
-        render(p.key, 'fromPct');
+        render();
       });
-
-      // 2. 拖动滑块 -> 更新百分比输入框与有效竞价
       p.slider.addEventListener('input', (e) => {
         let val = parseInt(e.target.value);
         state[p.key] = val;
         p.input.value = val;
-        render(p.key, 'fromPct');
-      });
-
-      // 3. 修改目标有效竞价 -> 反推百分比与滑块
-      p.effectiveInput.addEventListener('input', (e) => {
-        let targetBid = parseFloat(e.target.value) || 0;
-        let derivedPct = 0;
-        if (state.baseBid > 0) {
-          derivedPct = Math.round(((targetBid / state.baseBid) - 1) * 100);
-        }
-        if (derivedPct < 0) derivedPct = 0;
-        if (derivedPct > 900) derivedPct = 900;
-
-        state[p.key] = derivedPct;
-        p.input.value = derivedPct;
-        p.slider.value = derivedPct;
-        render(p.key, 'fromEffective');
+        render();
       });
     });
 
-    // 竞价策略切换
     strategyCards.forEach(card => {
       card.addEventListener('click', () => {
         strategyCards.forEach(c => c.classList.remove('active'));
@@ -858,19 +837,18 @@
         const radio = card.querySelector('input[type="radio"]');
         radio.checked = true;
         state.strategy = radio.value;
-        render('strategy');
+        render();
       });
     });
 
-    // 深浅色切换
     themeToggleBtn.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
       themeToggleBtn.innerHTML = isDark ? '☀️ 浅色模式' : '🌙 深色模式';
+      syncAllSliders();
     });
 
-    // 核心计算与 UI 渲染
-    function render(sourceKey, triggerType) {
+    function render() {
       let maxMultiplier = 1.0;
       let minFloor = 0.0;
       let strategyDescTag = '';
@@ -897,16 +875,11 @@
         const pct = state[p.key];
         p.badge.textContent = `+${pct}%`;
 
-        // 计算有效竞价
         const effectiveBid = state.baseBid * (1 + pct / 100);
         const lowVal = (effectiveBid * minFloor).toFixed(2);
         const highVal = (effectiveBid * maxMultiplier).toFixed(2);
 
-        // 避免用户正在输入有效竞价时光标被刷新打断
-        if (!(sourceKey === p.key && triggerType === 'fromEffective')) {
-          p.effectiveInput.value = effectiveBid.toFixed(2);
-        }
-
+        p.effective.textContent = `$${effectiveBid.toFixed(2)}`;
         p.detail.textContent = `有效竞价: $${effectiveBid.toFixed(2)}`;
         p.sumEffective.textContent = `有效竞价: $${effectiveBid.toFixed(2)}`;
 
@@ -920,6 +893,8 @@
         p.multiple.textContent = `最高 ×${maxMultiplier.toFixed(1)}`;
         p.ruleDesc.textContent = `${p.baseDesc}，${strategyDescTag}`;
       });
+
+      syncAllSliders();
     }
 
     render();

@@ -176,7 +176,6 @@
       color: var(--primary);
     }
 
-    /* 滑块样式与渐变填充 */
     .slider-box {
       position: relative;
       margin-top: 6px;
@@ -218,7 +217,6 @@
       transition: 0.15s;
     }
 
-    /* 极值标识，仅保留起止端点 */
     .slider-limits {
       display: flex;
       justify-content: space-between;
@@ -327,6 +325,7 @@
     }
 
     .p-input-col label {
+      display: block;
       font-size: 0.74rem;
       color: var(--text-muted);
       margin-bottom: 4px;
@@ -361,23 +360,6 @@
       display: flex;
       align-items: center;
       font-size: 0.8rem;
-    }
-
-    .effective-bid-col {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .effective-bid-col .e-label {
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .effective-bid-col .e-val {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-main);
     }
 
     .p-result-col {
@@ -555,7 +537,7 @@
     <div class="step-card">
       <div class="step-header">
         <div class="step-title">📍 3. 位置溢价与最终扣费预估 (Placement Multipliers)</div>
-        <div class="step-desc">三大广告位均支持 0%~900% 溢价调节（步长 1%），输入框与滑块实时联动。</div>
+        <div class="step-desc">三大广告位均支持 0%~900% 溢价调节（步长 1%），支持双向实时输入与滑块联动反推。</div>
       </div>
 
       <div class="placements-wrap">
@@ -574,9 +556,12 @@
                 <span>%</span>
               </div>
             </div>
-            <div class="effective-bid-col">
-              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
-              <span class="e-val" id="topEffective">$1.50</span>
+            <div class="p-input-col">
+              <label>目标有效竞价 (EFFECTIVE)</label>
+              <div class="pct-input-wrap">
+                <span style="border-right: none; padding-right: 6px;">$</span>
+                <input type="number" id="topEffectiveInput" step="0.01" value="1.50">
+              </div>
             </div>
             <div class="p-result-col">
               <div class="p-res-left">
@@ -611,9 +596,12 @@
                 <span>%</span>
               </div>
             </div>
-            <div class="effective-bid-col">
-              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
-              <span class="e-val" id="restEffective">$1.50</span>
+            <div class="p-input-col">
+              <label>目标有效竞价 (EFFECTIVE)</label>
+              <div class="pct-input-wrap">
+                <span style="border-right: none; padding-right: 6px;">$</span>
+                <input type="number" id="restEffectiveInput" step="0.01" value="1.50">
+              </div>
             </div>
             <div class="p-result-col">
               <div class="p-res-left">
@@ -648,9 +636,12 @@
                 <span>%</span>
               </div>
             </div>
-            <div class="effective-bid-col">
-              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
-              <span class="e-val" id="productEffective">$1.50</span>
+            <div class="p-input-col">
+              <label>目标有效竞价 (EFFECTIVE)</label>
+              <div class="pct-input-wrap">
+                <span style="border-right: none; padding-right: 6px;">$</span>
+                <input type="number" id="productEffectiveInput" step="0.01" value="1.50">
+              </div>
             </div>
             <div class="p-result-col">
               <div class="p-res-left">
@@ -706,7 +697,7 @@
     <div class="footer-rule-box">
       <h4>💡 亚马逊出价公式与最新规则要点：</h4>
       <p>1. <strong>三大位置独立溢价</strong>：搜索结果顶部、其余搜索结果、商品页面全位置均支持 0% ~ 900% 整数调节。</p>
-      <p>2. <strong>目标有效竞价</strong> = 基础竞价 × (1 + 位置溢价%)。</p>
+      <p>2. <strong>目标有效竞价与反推</strong>：目标有效竞价 = 基础竞价 × (1 + 位置溢价%)。支持直接输入目标竞价反算所需溢价比例。</p>
       <p>3. <strong>动态竞价上浮新规</strong>：在“提高和降低”策略下，官方已统一全位置的最高上浮比例为 <strong>+100% (最高 2.0x)</strong>，不存在过往商品页仅 50% 的限制。</p>
       <p>4. <strong>基于规则的竞价 (Rule-based)</strong>：以设定目标 ROAS 为准则，系统调优出价最高可达位置溢价后金额的 <strong>5 倍 (5.0x)</strong>。</p>
     </div>
@@ -730,9 +721,9 @@
       {
         key: 'topPct',
         input: document.getElementById('topPctInput'),
+        effectiveInput: document.getElementById('topEffectiveInput'),
         slider: document.getElementById('topSlider'),
         badge: document.getElementById('topBadge'),
-        effective: document.getElementById('topEffective'),
         range: document.getElementById('topRange'),
         detail: document.getElementById('topDetail'),
         multiple: document.getElementById('topMultiple'),
@@ -744,9 +735,9 @@
       {
         key: 'restPct',
         input: document.getElementById('restPctInput'),
+        effectiveInput: document.getElementById('restEffectiveInput'),
         slider: document.getElementById('restSlider'),
         badge: document.getElementById('restBadge'),
-        effective: document.getElementById('restEffective'),
         range: document.getElementById('restRange'),
         detail: document.getElementById('restDetail'),
         multiple: document.getElementById('restMultiple'),
@@ -758,9 +749,9 @@
       {
         key: 'productPct',
         input: document.getElementById('productPctInput'),
+        effectiveInput: document.getElementById('productEffectiveInput'),
         slider: document.getElementById('productSlider'),
         badge: document.getElementById('productBadge'),
-        effective: document.getElementById('productEffective'),
         range: document.getElementById('productRange'),
         detail: document.getElementById('productDetail'),
         multiple: document.getElementById('productMultiple'),
@@ -771,7 +762,6 @@
       }
     ];
 
-    // 更新滑块随拖动进度实时填充的高亮颜色
     function updateSliderFill(slider, activeColor, trackColor) {
       const min = parseFloat(slider.min) || 0;
       const max = parseFloat(slider.max) || 100;
@@ -792,6 +782,7 @@
       });
     }
 
+    // 基准竞价输入
     baseBidInput.addEventListener('input', (e) => {
       let val = parseFloat(e.target.value) || 0;
       state.baseBid = val;
@@ -813,20 +804,40 @@
       render();
     }
 
+    // 双向联动：溢价百分比与目标有效竞价
     placements.forEach(p => {
+      // 1. 修改百分比输入框 -> 正推有效竞价
       p.input.addEventListener('input', (e) => {
         let val = parseInt(e.target.value) || 0;
         if (val < 0) val = 0;
         if (val > 900) val = 900;
         state[p.key] = val;
         p.slider.value = val;
-        render();
+        render('pct');
       });
+
+      // 2. 拖动滑块 -> 正推有效竞价
       p.slider.addEventListener('input', (e) => {
         let val = parseInt(e.target.value);
         state[p.key] = val;
         p.input.value = val;
-        render();
+        render('pct');
+      });
+
+      // 3. 修改目标有效竞价输入框 -> 反推百分比并同步滑块
+      p.effectiveInput.addEventListener('input', (e) => {
+        let targetEffective = parseFloat(e.target.value) || 0;
+        if (state.baseBid > 0) {
+          // 反推公式: 溢价% = (目标有效竞价 / 基础竞价 - 1) * 100
+          let calculatedPct = Math.round(((targetEffective / state.baseBid) - 1) * 100);
+          if (calculatedPct < 0) calculatedPct = 0;
+          if (calculatedPct > 900) calculatedPct = 900;
+          
+          state[p.key] = calculatedPct;
+          p.input.value = calculatedPct;
+          p.slider.value = calculatedPct;
+        }
+        render('effective');
       });
     });
 
@@ -848,7 +859,8 @@
       syncAllSliders();
     });
 
-    function render() {
+    // source: 'pct'（来自百分比或滑块） | 'effective'（来自有效竞价框）
+    function render(source) {
       let maxMultiplier = 1.0;
       let minFloor = 0.0;
       let strategyDescTag = '';
@@ -879,7 +891,11 @@
         const lowVal = (effectiveBid * minFloor).toFixed(2);
         const highVal = (effectiveBid * maxMultiplier).toFixed(2);
 
-        p.effective.textContent = `$${effectiveBid.toFixed(2)}`;
+        // 如果用户正在修改有效竞价输入框，不覆写它的当前光标与输入
+        if (source !== 'effective') {
+          p.effectiveInput.value = effectiveBid.toFixed(2);
+        }
+
         p.detail.textContent = `有效竞价: $${effectiveBid.toFixed(2)}`;
         p.sumEffective.textContent = `有效竞价: $${effectiveBid.toFixed(2)}`;
 

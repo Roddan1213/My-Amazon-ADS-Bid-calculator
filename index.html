@@ -3,992 +3,914 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Amazon 广告竞价与策略计算器 (Pro)</title>
+  <title>Amazon 广告竞价与策略计算器</title>
   <style>
     :root {
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
-      --bg-page: #f8fafc;
+      --bg-page: #f1f5f9;
       --card-bg: #ffffff;
       --card-sub-bg: #f8fafc;
       --input-bg: #ffffff;
-      --input-wrap-bg: #f1f5f9;
+      --input-border: #cbd5e1;
       --text-main: #0f172a;
       --text-muted: #64748b;
       --border-color: #e2e8f0;
-      --strategy-selected-bg: #eff6ff;
-      --danger: #ef4444;
-      --danger-bg: #fef2f2;
-      --danger-border: #fca5a5;
-      --info-bg: #eff6ff;
-      --info-border: #bfdbfe;
-      --info-text: #1e3a8a;
-      --badge-bg: #e2e8f0;
-      --badge-text: #475569;
+      --accent-green: #059669;
+      --accent-green-hover: #047857;
+      --badge-blue-bg: #eff6ff;
+      --badge-blue-text: #2563eb;
       --slider-track: #e2e8f0;
-      --slider-thumb: #2563eb;
-      /* 基础竞价专属绿色系 */
-      --base-slider-thumb: #059669;
-      --base-slider-hover: #047857;
     }
 
     body.dark-mode {
       --primary: #3b82f6;
       --primary-hover: #60a5fa;
-      --bg-page: #0f172a;
-      --card-bg: #1e293b;
-      --card-sub-bg: #0f172a;
-      --input-bg: #1e293b;
-      --input-wrap-bg: #334155;
+      --bg-page: #0b0f17;
+      --card-bg: #131b2e;
+      --card-sub-bg: #1e293b;
+      --input-bg: #0f172a;
+      --input-border: #334155;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --border-color: #334155;
-      --strategy-selected-bg: rgba(59, 130, 246, 0.15);
-      --danger: #f87171;
-      --danger-bg: #450a0a;
-      --danger-border: #991b1b;
-      --info-bg: #172554;
-      --info-border: #1e40af;
-      --info-text: #93c5fd;
-      --badge-bg: #334155;
-      --badge-text: #cbd5e1;
+      --border-color: #1e293b;
+      --badge-blue-bg: #1e3a8a;
+      --badge-blue-text: #bfdbfe;
       --slider-track: #334155;
-      --slider-thumb: #3b82f6;
-      /* 深色模式下的基础滑块专属绿 */
-      --base-slider-thumb: #10b981;
-      --base-slider-hover: #34d399;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       background-color: var(--bg-page);
       color: var(--text-main);
-      padding: 24px 16px;
-      display: flex;
-      justify-content: center;
+      padding: 30px 16px;
+      line-height: 1.5;
+      transition: background-color 0.2s, color 0.2s;
     }
 
     .container {
-      width: 100%;
-      max-width: 860px;
+      max-width: 900px;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-    }
-
-    .header {
-      background: var(--card-bg);
-      padding: 24px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
       gap: 16px;
     }
-    .header-text h1 {
-      font-size: 1.5rem;
-      margin-bottom: 6px;
-      color: var(--text-main);
-    }
-    .header-text p {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-    .theme-toggle-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--input-wrap-bg);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 8px 14px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-      user-select: none;
-    }
-    .theme-toggle-btn:hover {
-      border-color: var(--primary);
-    }
 
-    .card {
+    /* 顶部标题栏 */
+    .header-card {
       background: var(--card-bg);
-      padding: 20px;
-      border-radius: 12px;
       border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
 
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 4px;
+    .header-title h1 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .header-title p {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .theme-toggle-btn {
+      background: var(--card-sub-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      font-weight: 500;
     }
 
-    .card-desc {
-      font-size: 0.85rem;
-      color: var(--text-muted);
+    /* 通用卡片样式 */
+    .step-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 22px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .step-header {
       margin-bottom: 16px;
     }
 
-    .base-bid-input-wrap {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .currency-input {
-      display: flex;
-      align-items: center;
-      background: var(--input-wrap-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 8px 12px;
-      width: 140px;
-    }
-    .currency-input span {
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-right: 4px;
-    }
-    .currency-input input {
-      border: none;
-      background: transparent;
-      outline: none;
-      font-size: 1.1rem;
-      font-weight: 600;
-      width: 100%;
-      color: var(--text-main);
-    }
-    .range-presets {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .preset-btn {
-      background: var(--input-wrap-bg);
-      border: 1px solid var(--border-color);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      color: var(--text-main);
-    }
-    .preset-btn:hover {
-      border-color: var(--primary);
-    }
-
-    /* 策略单选网格 */
-    .strategy-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 12px;
-    }
-    .strategy-card {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px 14px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      background: var(--card-bg);
-    }
-    .strategy-card:hover {
-      border-color: var(--primary);
-    }
-    .strategy-card.selected {
-      border-color: var(--primary);
-      background-color: var(--strategy-selected-bg);
-    }
-    .strategy-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-    .strategy-desc {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.35;
-    }
-
-    /* 广告位布局 */
-    .placements-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .placement-card {
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 18px;
-      background: var(--card-bg);
-    }
-    .placement-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-    .placement-name {
-      font-size: 1rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .placement-sub {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-    .placement-badge {
-      font-size: 0.75rem;
+    .step-title {
+      font-size: 1.02rem;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 4px;
-      background: rgba(37, 99, 235, 0.2);
-      color: var(--primary);
-    }
-
-    .placement-body {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1.2fr;
-      gap: 16px;
-      align-items: center;
-    }
-    @media (max-width: 680px) {
-      .placement-body {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-    }
-
-    .field-group {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 8px;
     }
-    .field-group label {
-      font-size: 0.75rem;
-      font-weight: 600;
+
+    .step-desc {
+      font-size: 0.82rem;
       color: var(--text-muted);
-      text-transform: uppercase;
+      margin-top: 4px;
     }
-    .input-box {
+
+    /* Step 1: 基础竞价 */
+    .bid-input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .bid-input-box {
       display: flex;
       align-items: center;
       background: var(--input-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 6px 10px;
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      padding: 0 14px;
+      height: 42px;
+      width: 170px;
     }
-    .input-box input {
+
+    .bid-input-box span {
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    .bid-input-box input {
       border: none;
       background: transparent;
       outline: none;
-      font-size: 0.95rem;
-      width: 100%;
+      font-size: 1.15rem;
+      font-weight: 700;
       color: var(--text-main);
-    }
-    .input-box span {
-      color: var(--text-muted);
-      font-size: 0.85rem;
+      width: 100%;
     }
 
-    /* 滑动条通用容器 */
-    .slider-container {
-      margin-top: 14px;
+    .preset-pills {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
-    .slider-track-wrap {
-      width: 100%;
-      display: flex;
-      align-items: center;
+
+    .pill-btn {
+      background: var(--card-sub-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
     }
+
+    .pill-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* 滑块通用样式 */
+    .slider-box {
+      position: relative;
+      margin-top: 8px;
+    }
+
     input[type="range"] {
-      -webkit-appearance: none;
       width: 100%;
       height: 6px;
-      border-radius: 3px;
       background: var(--slider-track);
+      border-radius: 4px;
       outline: none;
-      cursor: pointer;
-    }
-    /* 下方位置滑块 (蓝色系) */
-    input[type="range"].placement-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: var(--slider-thumb);
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-      transition: transform 0.1s ease;
-    }
-    input[type="range"].placement-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-    }
-    input[type="range"].placement-slider::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      border: none;
-      border-radius: 50%;
-      background: var(--slider-thumb);
-      cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
 
-    /* 基础竞价专属滑块 (绿色系，形成明显反差) */
-    input[type="range"].base-slider::-webkit-slider-thumb {
+    input[type="range"].green-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      appearance: none;
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: var(--base-slider-thumb);
+      background: var(--accent-green);
       cursor: pointer;
-      box-shadow: 0 1px 4px rgba(5, 150, 105, 0.4);
-      transition: transform 0.1s ease;
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+      transition: 0.15s;
     }
-    input[type="range"].base-slider::-webkit-slider-thumb:hover {
-      transform: scale(1.2);
-      background: var(--base-slider-hover);
-    }
-    input[type="range"].base-slider::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
-      border: none;
-      border-radius: 50%;
-      background: var(--base-slider-thumb);
-      cursor: pointer;
-      box-shadow: 0 1px 4px rgba(5, 150, 105, 0.4);
+    input[type="range"].green-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: var(--accent-green-hover);
     }
 
-    .slider-scale {
+    input[type="range"].blue-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+      transition: 0.15s;
+    }
+
+    .slider-ticks {
       display: flex;
       justify-content: space-between;
       font-size: 0.72rem;
       color: var(--text-muted);
-      padding: 0 2px;
+      margin-top: 6px;
     }
 
-    .cpc-output-box {
-      background: var(--card-sub-bg);
+    /* Step 2: 策略网格 */
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .strategy-card {
       border: 1px solid var(--border-color);
+      background: var(--card-sub-bg);
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 14px;
+      cursor: pointer;
+      display: flex;
+      gap: 10px;
+      transition: all 0.15s;
+    }
+
+    .strategy-card:hover { border-color: var(--primary); }
+    .strategy-card.active {
+      border-color: var(--primary);
+      background: var(--badge-blue-bg);
+    }
+
+    .strategy-card input[type="radio"] {
+      margin-top: 3px;
+      accent-color: var(--primary);
+    }
+
+    .strategy-content .s-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .strategy-content .s-desc {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    /* Step 3: 广告位卡片 */
+    .placements-wrap {
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      gap: 14px;
     }
-    .cpc-output-box.danger-glow {
-      background: var(--danger-bg);
-      border-color: var(--danger-border);
+
+    .placement-card {
+      background: var(--card-sub-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px 20px;
     }
-    .cpc-title {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 600;
+
+    .p-top-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 6px;
     }
-    .cpc-val {
+
+    .p-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .p-badge {
+      background: var(--badge-blue-bg);
+      color: var(--badge-blue-text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 5px;
+    }
+
+    .p-rule-desc {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .p-body-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 650px) {
+      .p-body-grid {
+        grid-template-columns: 140px 150px 1fr;
+      }
+    }
+
+    .p-input-col label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .pct-input-wrap {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--input-border);
+      background: var(--input-bg);
+      border-radius: 6px;
+      overflow: hidden;
+      height: 38px;
+    }
+
+    .pct-input-wrap input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      padding: 0 10px;
+      width: 100%;
+    }
+
+    .pct-input-wrap span {
+      background: var(--bg-page);
+      color: var(--text-muted);
+      padding: 0 10px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .effective-bid-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .effective-bid-col .e-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .effective-bid-col .e-val {
       font-size: 1.15rem;
       font-weight: 700;
       color: var(--text-main);
-      margin-top: 2px;
     }
-    .danger-glow .cpc-val {
-      color: var(--danger);
+
+    .p-result-col {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      grid-column: span 2;
     }
-    .cpc-subtext {
+
+    @media (min-width: 650px) {
+      .p-result-col { grid-column: span 1; }
+    }
+
+    .p-res-left .res-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .p-res-left .res-range {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.2px;
+    }
+
+    .p-res-left .res-detail {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .p-res-right-badge {
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      font-weight: 600;
     }
 
-    .warning-callout {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      color: var(--danger);
-      background: var(--danger-bg);
-      border-left: 3px solid var(--danger);
-      padding: 6px 10px;
-      border-radius: 4px;
-      display: none;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .comparison-list {
+    /* Step 4: 汇总列表 */
+    .summary-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-top: 10px;
+      gap: 10px;
     }
-    .comp-item {
+
+    .summary-item {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
+      align-items: center;
+      padding: 12px 16px;
       background: var(--card-sub-bg);
       border: 1px solid var(--border-color);
       border-radius: 8px;
     }
-    .comp-name {
-      font-size: 0.9rem;
+
+    .sum-name {
+      font-size: 0.92rem;
       font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
-    .comp-data {
+
+    .sum-values {
       text-align: right;
     }
-    .comp-range {
-      font-size: 1rem;
-      font-weight: 700;
+
+    .sum-range {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-main);
     }
-    .comp-effective {
-      font-size: 0.75rem;
+
+    .sum-effective {
+      font-size: 0.74rem;
       color: var(--text-muted);
     }
 
-    .info-card {
-      background: var(--info-bg);
-      border: 1px solid var(--info-border);
-      border-radius: 8px;
-      padding: 14px;
-      font-size: 0.82rem;
-      color: var(--info-text);
-      line-height: 1.5;
-    }
-    .info-card strong {
-      color: var(--primary);
-    }
-    .footer {
-      text-align: center;
-      font-size: 0.75rem;
+    /* 底部规则说明 */
+    .footer-rule-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px 22px;
+      font-size: 0.78rem;
       color: var(--text-muted);
-      margin-top: 6px;
+      line-height: 1.7;
+    }
+
+    .footer-rule-box h4 {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
   </style>
 </head>
 <body>
-
-<div class="container">
-  <div class="header">
-    <div class="header-text">
-      <h1>Amazon 广告竞价与策略计算器</h1>
-      <p>支持三大核心位置独立溢价调整（0%~900%），并精准测算三种竞价策略下的真实最高扣费（Max CPC）。</p>
-    </div>
-    <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()">
-      <span id="themeIcon">🌙</span>
-      <span id="themeLabel">深色模式</span>
-    </button>
-  </div>
-
-  <!-- 1. 组内竞价 (带专属绿色滑动条) -->
-  <div class="card">
-    <div class="card-title">📦 1. 设置组内默认基准竞价 (Base Bid)</div>
-    <div class="card-desc">广告组内关键词/商品投放的基础出价，所有位置计算的基准点。可通过输入框或拖动绿色滑块快速调节。</div>
-    <div class="base-bid-input-wrap">
-      <div class="currency-input">
-        <span>$</span>
-        <input type="number" id="baseBid" value="1.50" min="0.02" max="10.00" step="0.01" oninput="onBaseBidInput(this.value)">
+  <div class="container">
+    <!-- Header -->
+    <div class="header-card">
+      <div class="header-title">
+        <h1>Amazon 广告竞价与策略计算器</h1>
+        <p>支持三大核心位置独立设置溢价 (0%~900%)，并精准测算全策略规则下的真实最高扣费 (Max CPC)。</p>
       </div>
-      <div class="range-presets">
-        <button class="preset-btn" onclick="setBaseBid(0.50)">$0.50</button>
-        <button class="preset-btn" onclick="setBaseBid(1.00)">$1.00</button>
-        <button class="preset-btn" onclick="setBaseBid(1.50)">$1.50</button>
-        <button class="preset-btn" onclick="setBaseBid(2.00)">$2.00</button>
-      </div>
+      <button class="theme-toggle-btn" id="themeToggleBtn">🌙 深色模式</button>
     </div>
 
-    <!-- 基础竞价专属滑块 -->
-    <div class="slider-container">
-      <div class="slider-track-wrap">
-        <input type="range" class="base-slider" id="base-slider" min="0.02" max="10.00" step="0.01" value="1.50" oninput="onBaseSliderInput(this.value)">
+    <!-- Step 1: 基础竞价 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-title">🏷️ 1. 设置组内默认基准竞价 (Base Bid)</div>
+        <div class="step-desc">广告组内关键词/商品投放的基础出价，所有位置计算的基准点。可通过输入框或拖动绿色滑块快速调节。</div>
       </div>
-      <div class="slider-scale">
-        <span>$0.02</span>
-        <span>$1.00</span>
-        <span>$2.50</span>
-        <span>$5.00</span>
-        <span>$7.50</span>
-        <span>$10.00</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. 竞价策略选择 -->
-  <div class="card">
-    <div class="card-title">⚙️ 2. 选择广告活动竞价策略 (Bidding Strategy)</div>
-    <div class="card-desc">亚马逊系统会根据你选择的策略在展示时动态调整实际竞价。</div>
-    <div class="strategy-grid">
-      <label class="strategy-card selected" id="strat-down-card">
-        <div class="strategy-header">
-          <input type="radio" name="strategy" value="down" checked onchange="handleStrategyChange()">
-          <span>动态竞价 - 仅降低</span>
+      <div class="bid-input-row">
+        <div class="bid-input-box">
+          <span>$</span>
+          <input type="number" id="baseBidInput" value="1.50" min="0.02" max="100" step="0.01">
         </div>
-        <div class="strategy-desc">系统认为转化率低时自动降低竞价。最高不超过你的有效竞价。（系统默认）</div>
-      </label>
-
-      <label class="strategy-card" id="strat-updown-card">
-        <div class="strategy-header">
-          <input type="radio" name="strategy" value="updown" onchange="handleStrategyChange()">
-          <span>动态竞价 - 提高和降低</span>
-        </div>
-        <div class="strategy-desc">顶部最高上浮 100% (2.0x)，其他位置最高上浮 50% (1.5x)。存在明显乘数效应。</div>
-      </label>
-
-      <label class="strategy-card" id="strat-fixed-card">
-        <div class="strategy-header">
-          <input type="radio" name="strategy" value="fixed" onchange="handleStrategyChange()">
-          <span>固定竞价</span>
-        </div>
-        <div class="strategy-desc">系统严格按有效竞价参与竞拍，不根据转化概率进行任何浮动。</div>
-      </label>
-    </div>
-  </div>
-
-  <!-- 3. 位置溢价及有效区间 (三大位置均支持溢价与蓝色滑块) -->
-  <div class="card">
-    <div class="card-title">📍 3. 位置溢价与最终扣费预估 (Placement Multipliers)</div>
-    <div class="card-desc">三大广告位均支持 0%~900% 溢价调节，支持数字直接输入、目标竞价反推或滑块实时拖动。</div>
-
-    <div class="placements-grid">
-      
-      <!-- 搜索结果顶部 -->
-      <div class="placement-card" id="card-top">
-        <div class="placement-header">
-          <div>
-            <div class="placement-name">🔝 搜索结果顶部 (Top of Search - first page)</div>
-            <div class="placement-sub">首页首屏最顶部，选“提高和降低”时上浮上限为 +100% (2.0x)</div>
-          </div>
-          <span class="placement-badge" id="badge-top">+0%</span>
-        </div>
-        <div class="placement-body">
-          <div class="field-group">
-            <label>溢价百分比 (0-900%)</label>
-            <div class="input-box">
-              <input type="number" id="top-pct" value="0" min="0" max="900" step="1" oninput="onPctInput('top')">
-              <span>%</span>
-            </div>
-          </div>
-          <div class="field-group">
-            <label>目标有效竞价 (Effective)</label>
-            <div class="input-box">
-              <span>$</span>
-              <input type="number" id="top-eff" value="1.50" min="0.02" step="0.01" oninput="onEffInput('top')">
-            </div>
-          </div>
-          <div class="cpc-output-box" id="top-box">
-            <div class="cpc-title">
-              <span>最终单次点击范围 (Max CPC)</span>
-              <span id="top-multiplier-tag">最高 ×1.0</span>
-            </div>
-            <div class="cpc-val" id="top-range">$0.00 - $1.50</div>
-            <div class="cpc-subtext" id="top-eff-sub">有效竞价: $1.50</div>
-          </div>
-        </div>
-        <div class="slider-container">
-          <div class="slider-track-wrap">
-            <input type="range" class="placement-slider" id="top-slider" min="0" max="900" step="1" value="0" oninput="onSliderInput('top')">
-          </div>
-          <div class="slider-scale">
-            <span>0%</span><span>150%</span><span>300%</span><span>500%</span><span>700%</span><span>900%</span>
-          </div>
-        </div>
-        <div class="warning-callout" id="top-warning">
-          ⚠️ <strong>高 CPC 风险预警：</strong>该位置最高出价已达基础竞价的 3 倍以上，极易跑飞预算！
+        <div class="preset-pills">
+          <button class="pill-btn" onclick="setBaseBid(0.50)">$0.50</button>
+          <button class="pill-btn" onclick="setBaseBid(1.00)">$1.00</button>
+          <button class="pill-btn" onclick="setBaseBid(1.50)">$1.50</button>
+          <button class="pill-btn" onclick="setBaseBid(2.00)">$2.00</button>
         </div>
       </div>
-
-      <!-- 商品页面 -->
-      <div class="placement-card" id="card-prod">
-        <div class="placement-header">
-          <div>
-            <div class="placement-name">📄 商品页面 (Product Pages)</div>
-            <div class="placement-sub">ASIN 详情页广告位，选“提高和降低”时上浮上限为 +50% (1.5x)</div>
-          </div>
-          <span class="placement-badge" id="badge-prod">+0%</span>
-        </div>
-        <div class="placement-body">
-          <div class="field-group">
-            <label>溢价百分比 (0-900%)</label>
-            <div class="input-box">
-              <input type="number" id="prod-pct" value="0" min="0" max="900" step="1" oninput="onPctInput('prod')">
-              <span>%</span>
-            </div>
-          </div>
-          <div class="field-group">
-            <label>目标有效竞价 (Effective)</label>
-            <div class="input-box">
-              <span>$</span>
-              <input type="number" id="prod-eff" value="1.50" min="0.02" step="0.01" oninput="onEffInput('prod')">
-            </div>
-          </div>
-          <div class="cpc-output-box" id="prod-box">
-            <div class="cpc-title">
-              <span>最终单次点击范围 (Max CPC)</span>
-              <span id="prod-multiplier-tag">最高 ×1.0</span>
-            </div>
-            <div class="cpc-val" id="prod-range">$0.00 - $1.50</div>
-            <div class="cpc-subtext" id="prod-eff-sub">有效竞价: $1.50</div>
-          </div>
-        </div>
-        <div class="slider-container">
-          <div class="slider-track-wrap">
-            <input type="range" class="placement-slider" id="prod-slider" min="0" max="900" step="1" value="0" oninput="onSliderInput('prod')">
-          </div>
-          <div class="slider-scale">
-            <span>0%</span><span>150%</span><span>300%</span><span>500%</span><span>700%</span><span>900%</span>
-          </div>
-        </div>
-        <div class="warning-callout" id="prod-warning">
-          ⚠️ <strong>高 CPC 风险预警：</strong>该位置出价较高，请确认详情页转化率是否能够支撑。
-        </div>
-      </div>
-
-      <!-- 搜索结果其余位置 -->
-      <div class="placement-card" id="card-rest">
-        <div class="placement-header">
-          <div>
-            <div class="placement-name">🔍 搜索结果其余位置 (Rest of Search)</div>
-            <div class="placement-sub">搜索结果第2页及后续位置，选“提高和降低”时上浮上限为 +50% (1.5x)</div>
-          </div>
-          <span class="placement-badge" id="badge-rest">+0%</span>
-        </div>
-        <div class="placement-body">
-          <div class="field-group">
-            <label>溢价百分比 (0-900%)</label>
-            <div class="input-box">
-              <input type="number" id="rest-pct" value="0" min="0" max="900" step="1" oninput="onPctInput('rest')">
-              <span>%</span>
-            </div>
-          </div>
-          <div class="field-group">
-            <label>目标有效竞价 (Effective)</label>
-            <div class="input-box">
-              <span>$</span>
-              <input type="number" id="rest-eff" value="1.50" min="0.02" step="0.01" oninput="onEffInput('rest')">
-            </div>
-          </div>
-          <div class="cpc-output-box" id="rest-box">
-            <div class="cpc-title">
-              <span>最终单次点击范围 (Max CPC)</span>
-              <span id="rest-multiplier-tag">最高 ×1.0</span>
-            </div>
-            <div class="cpc-val" id="rest-range">$0.00 - $1.50</div>
-            <div class="cpc-subtext" id="rest-eff-sub">有效竞价: $1.50</div>
-          </div>
-        </div>
-        <div class="slider-container">
-          <div class="slider-track-wrap">
-            <input type="range" class="placement-slider" id="rest-slider" min="0" max="900" step="1" value="0" oninput="onSliderInput('rest')">
-          </div>
-          <div class="slider-scale">
-            <span>0%</span><span>150%</span><span>300%</span><span>500%</span><span>700%</span><span>900%</span>
-          </div>
-        </div>
-        <div class="warning-callout" id="rest-warning">
-          ⚠️ <strong>高 CPC 风险预警：</strong>其余位置出价已大幅上浮，请注意观察投放投产比。
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- 4. 汇总对照 -->
-  <div class="card">
-    <div class="card-title">📊 各广告位最终竞价区间汇总</div>
-    <div class="comparison-list">
-      <div class="comp-item">
-        <div class="comp-name">🔝 搜索结果顶部</div>
-        <div class="comp-data">
-          <div class="comp-range" id="summary-top-range">$0.00 - $1.50</div>
-          <div class="comp-effective" id="summary-top-sub">有效竞价: $1.50</div>
-        </div>
-      </div>
-      <div class="comp-item">
-        <div class="comp-name">📄 商品页面</div>
-        <div class="comp-data">
-          <div class="comp-range" id="summary-prod-range">$0.00 - $1.50</div>
-          <div class="comp-effective" id="summary-prod-sub">有效竞价: $1.50</div>
-        </div>
-      </div>
-      <div class="comp-item">
-        <div class="comp-name">🔍 搜索结果其余位置</div>
-        <div class="comp-data">
-          <div class="comp-range" id="summary-rest-range">$0.00 - $1.50</div>
-          <div class="comp-effective" id="summary-rest-sub">有效竞价: $1.50</div>
+      <div class="slider-box">
+        <input type="range" id="baseBidSlider" class="green-slider" min="0.02" max="10.00" step="0.01" value="1.50">
+        <div class="slider-ticks">
+          <span>$0.02</span>
+          <span>$1.00</span>
+          <span>$2.50</span>
+          <span>$5.00</span>
+          <span>$7.50</span>
+          <span>$10.00</span>
         </div>
       </div>
     </div>
+
+    <!-- Step 2: 竞价策略选择 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-title">⚙️ 2. 选择广告活动竞价策略 (Bidding Strategy)</div>
+        <div class="step-desc">亚马逊系统会根据你选择的策略在展示时动态调整实际竞价。</div>
+      </div>
+      <div class="strategy-grid">
+        <label class="strategy-card">
+          <input type="radio" name="strategy" value="down_only">
+          <div class="strategy-content">
+            <div class="s-title">动态竞价 - 仅降低</div>
+            <div class="s-desc">系统认为转化率低时自动降低竞价，最高不超过你的有效竞价。(系统默认)</div>
+          </div>
+        </label>
+        <label class="strategy-card active">
+          <input type="radio" name="strategy" value="up_down" checked>
+          <div class="strategy-content">
+            <div class="s-title">动态竞价 - 提高和降低</div>
+            <div class="s-desc"><strong>全广告位统一</strong>最高上浮 100% (2.0x)。系统在转化率高时自动冲刺顶峰。</div>
+          </div>
+        </label>
+        <label class="strategy-card">
+          <input type="radio" name="strategy" value="fixed">
+          <div class="strategy-content">
+            <div class="s-title">固定竞价</div>
+            <div class="s-desc">系统严格按有效竞价参与竞拍，不根据转化概率进行任何浮动。</div>
+          </div>
+        </label>
+        <label class="strategy-card">
+          <input type="radio" name="strategy" value="rule_based">
+          <div class="strategy-content">
+            <div class="s-title">基于规则的竞价</div>
+            <div class="s-desc">以目标 ROAS 为导向，系统最高可调整至广告位后出价的 <strong>5 倍 (5.0x)</strong>。</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Step 3: 位置溢价与最终扣费预估 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-title">📍 3. 位置溢价与最终扣费预估 (Placement Multipliers)</div>
+        <div class="step-desc">三大广告位均支持 0%~900% 溢价调节（最小单位 1%），支持数字直接输入或滑块实时拖动。</div>
+      </div>
+
+      <div class="placements-wrap">
+        <!-- 1. Top of search -->
+        <div class="placement-card">
+          <div class="p-top-row">
+            <div class="p-name">🎯 搜索结果顶部 (Top of Search - first page)</div>
+            <div class="p-badge" id="topBadge">+0%</div>
+          </div>
+          <div class="p-rule-desc" id="topRuleDesc">首页首屏最顶部，选“提高和降低”时上浮上限为 +100% (2.0x)</div>
+          <div class="p-body-grid">
+            <div class="p-input-col">
+              <label>溢价百分比 (0-900%)</label>
+              <div class="pct-input-wrap">
+                <input type="number" id="topPctInput" min="0" max="900" step="1" value="0">
+                <span>%</span>
+              </div>
+            </div>
+            <div class="effective-bid-col">
+              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
+              <span class="e-val" id="topEffective">$1.50</span>
+            </div>
+            <div class="p-result-col">
+              <div class="p-res-left">
+                <div class="res-sub">最终单次点击范围 (Max CPC)</div>
+                <div class="res-range" id="topRange">$0.00 - $3.00</div>
+                <div class="res-detail" id="topDetail">有效竞价: $1.50</div>
+              </div>
+              <div class="p-res-right-badge" id="topMultiple">最高 ×2.0</div>
+            </div>
+          </div>
+          <div class="slider-box">
+            <!-- 步长已调整为 1 -->
+            <input type="range" id="topSlider" class="blue-slider" min="0" max="900" step="1" value="0">
+            <div class="slider-ticks">
+              <span>0%</span>
+              <span>150%</span>
+              <span>300%</span>
+              <span>500%</span>
+              <span>700%</span>
+              <span>900%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Rest of Search -->
+        <div class="placement-card">
+          <div class="p-top-row">
+            <div class="p-name">🔍 搜索结果其余位置 (Rest of Search)</div>
+            <div class="p-badge" id="restBadge">+0%</div>
+          </div>
+          <div class="p-rule-desc" id="restRuleDesc">搜索结果第 2 页及后续位置，最新规则下“提高和降低”上浮上限亦为 +100% (2.0x)</div>
+          <div class="p-body-grid">
+            <div class="p-input-col">
+              <label>溢价百分比 (0-900%)</label>
+              <div class="pct-input-wrap">
+                <input type="number" id="restPctInput" min="0" max="900" step="1" value="0">
+                <span>%</span>
+              </div>
+            </div>
+            <div class="effective-bid-col">
+              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
+              <span class="e-val" id="restEffective">$1.50</span>
+            </div>
+            <div class="p-result-col">
+              <div class="p-res-left">
+                <div class="res-sub">最终单次点击范围 (Max CPC)</div>
+                <div class="res-range" id="restRange">$0.00 - $3.00</div>
+                <div class="res-detail" id="restDetail">有效竞价: $1.50</div>
+              </div>
+              <div class="p-res-right-badge" id="restMultiple">最高 ×2.0</div>
+            </div>
+          </div>
+          <div class="slider-box">
+            <!-- 步长已调整为 1 -->
+            <input type="range" id="restSlider" class="blue-slider" min="0" max="900" step="1" value="0">
+            <div class="slider-ticks">
+              <span>0%</span>
+              <span>150%</span>
+              <span>300%</span>
+              <span>500%</span>
+              <span>700%</span>
+              <span>900%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Product Pages -->
+        <div class="placement-card">
+          <div class="p-top-row">
+            <div class="p-name">📑 商品页面 (Product Pages)</div>
+            <div class="p-badge" id="productBadge">+0%</div>
+          </div>
+          <div class="p-rule-desc" id="productRuleDesc">ASIN 详情页广告位，最新规则下“提高和降低”上浮上限亦为 +100% (2.0x)</div>
+          <div class="p-body-grid">
+            <div class="p-input-col">
+              <label>溢价百分比 (0-900%)</label>
+              <div class="pct-input-wrap">
+                <input type="number" id="productPctInput" min="0" max="900" step="1" value="0">
+                <span>%</span>
+              </div>
+            </div>
+            <div class="effective-bid-col">
+              <span class="e-label">目标有效竞价 (EFFECTIVE)</span>
+              <span class="e-val" id="productEffective">$1.50</span>
+            </div>
+            <div class="p-result-col">
+              <div class="p-res-left">
+                <div class="res-sub">最终单次点击范围 (Max CPC)</div>
+                <div class="res-range" id="productRange">$0.00 - $3.00</div>
+                <div class="res-detail" id="productDetail">有效竞价: $1.50</div>
+              </div>
+              <div class="p-res-right-badge" id="productMultiple">最高 ×2.0</div>
+            </div>
+          </div>
+          <div class="slider-box">
+            <!-- 步长已调整为 1 -->
+            <input type="range" id="productSlider" class="blue-slider" min="0" max="900" step="1" value="0">
+            <div class="slider-ticks">
+              <span>0%</span>
+              <span>150%</span>
+              <span>300%</span>
+              <span>500%</span>
+              <span>700%</span>
+              <span>900%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: 各广告位最终竞价区间汇总 -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-title">📊 4. 各广告位最终竞价区间汇总</div>
+      </div>
+      <div class="summary-list">
+        <div class="summary-item">
+          <div class="sum-name">🎯 搜索结果顶部</div>
+          <div class="sum-values">
+            <div class="sum-range" id="sumTopRange">$0.00 - $3.00</div>
+            <div class="sum-effective" id="sumTopEffective">有效竞价: $1.50</div>
+          </div>
+        </div>
+        <div class="summary-item">
+          <div class="sum-name">🔍 搜索结果其余位置</div>
+          <div class="sum-values">
+            <div class="sum-range" id="sumRestRange">$0.00 - $3.00</div>
+            <div class="sum-effective" id="sumRestEffective">有效竞价: $1.50</div>
+          </div>
+        </div>
+        <div class="summary-item">
+          <div class="sum-name">📑 商品页面</div>
+          <div class="sum-values">
+            <div class="sum-range" id="sumProductRange">$0.00 - $3.00</div>
+            <div class="sum-effective" id="sumProductEffective">有效竞价: $1.50</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部公式与说明 -->
+    <div class="footer-rule-box">
+      <h4>💡 亚马逊出价公式与最新规则要点：</h4>
+      <p>1. <strong>三大位置独立溢价</strong>：搜索结果顶部、其余搜索结果、商品页面全位置均支持 0% ~ 900% 整数逐级微调（步长 1%）。</p>
+      <p>2. <strong>目标有效竞价</strong> = 基础竞价 × (1 + 位置溢价%)。</p>
+      <p>3. <strong>动态竞价上浮新规</strong>：在“提高和降低”策略下，官方已统一全位置的最高上浮比例为 <strong>+100% (最高 2.0x)</strong>，不存在过往商品页仅 50% 的限制。</p>
+      <p>4. <strong>基于规则的竞价 (Rule-based)</strong>：以设定目标 ROAS 为准则，系统调优出价最高可达位置溢价后金额的 <strong>5 倍 (5.0x)</strong>。</p>
+    </div>
   </div>
 
-  <!-- 规则与公式卡片 -->
-  <div class="info-card">
-    <strong>💡 亚马逊出价公式与最新规则要点：</strong><br>
-    1. <strong>三大位置独立溢价</strong>：搜索结果顶部、商品页面、搜索结果其余位置均支持 <strong>0% ~ 900%</strong> 整数溢价。<br>
-    2. <strong>有效竞价 (Effective Bid)</strong> = 基础竞价 × (1 + 位置溢价% ÷ 100)<br>
-    3. <strong>动态竞价 - 仅降低</strong>：实际扣费区间为 $0.00 ~ 有效竞价；<strong>固定竞价</strong>：始终等于有效竞价。<br>
-    4. <strong>动态竞价 - 提高和降低 (乘数效应)</strong>：搜索顶部最高可达 <strong>有效竞价 × 2.0</strong>；商品页面与其余位置最高可达 <strong>有效竞价 × 1.5</strong>。
-  </div>
+  <script>
+    const state = {
+      baseBid: 1.50,
+      strategy: 'up_down',
+      topPct: 0,
+      restPct: 0,
+      productPct: 0
+    };
 
-  <div class="footer">
-    Amazon Ads Bid Calculator · 纯前端离线运行 · 数据安全不上传
-  </div>
-</div>
+    // DOM Elements
+    const baseBidInput = document.getElementById('baseBidInput');
+    const baseBidSlider = document.getElementById('baseBidSlider');
+    const strategyCards = document.querySelectorAll('.strategy-card');
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-<script>
-  function initTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-      document.body.classList.add('dark-mode');
-      updateThemeBtnUI(true);
-    } else {
-      document.body.classList.remove('dark-mode');
-      updateThemeBtnUI(false);
-    }
-  }
-
-  function toggleTheme() {
-    const isDark = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    updateThemeBtnUI(isDark);
-  }
-
-  function updateThemeBtnUI(isDark) {
-    document.getElementById('themeIcon').innerText = isDark ? '☀️' : '🌙';
-    document.getElementById('themeLabel').innerText = isDark ? '浅色模式' : '深色模式';
-  }
-
-  initTheme();
-
-  let state = {
-    baseBid: 1.50,
-    strategy: 'down',
-    topPct: 0,
-    prodPct: 0,
-    restPct: 0
-  };
-
-  const baseBidEl = document.getElementById('baseBid');
-  const baseSliderEl = document.getElementById('base-slider');
-
-  const elements = {
-    top: {
-      pct: document.getElementById('top-pct'),
-      eff: document.getElementById('top-eff'),
-      slider: document.getElementById('top-slider'),
-      badge: document.getElementById('badge-top'),
-      tag: document.getElementById('top-multiplier-tag'),
-      range: document.getElementById('top-range'),
-      effSub: document.getElementById('top-eff-sub'),
-      box: document.getElementById('top-box'),
-      warning: document.getElementById('top-warning'),
-      sumRange: document.getElementById('summary-top-range'),
-      sumSub: document.getElementById('summary-top-sub')
-    },
-    prod: {
-      pct: document.getElementById('prod-pct'),
-      eff: document.getElementById('prod-eff'),
-      slider: document.getElementById('prod-slider'),
-      badge: document.getElementById('badge-prod'),
-      tag: document.getElementById('prod-multiplier-tag'),
-      range: document.getElementById('prod-range'),
-      effSub: document.getElementById('prod-eff-sub'),
-      box: document.getElementById('prod-box'),
-      warning: document.getElementById('prod-warning'),
-      sumRange: document.getElementById('summary-prod-range'),
-      sumSub: document.getElementById('summary-prod-sub')
-    },
-    rest: {
-      pct: document.getElementById('rest-pct'),
-      eff: document.getElementById('rest-eff'),
-      slider: document.getElementById('rest-slider'),
-      badge: document.getElementById('badge-rest'),
-      tag: document.getElementById('rest-multiplier-tag'),
-      range: document.getElementById('rest-range'),
-      effSub: document.getElementById('rest-eff-sub'),
-      box: document.getElementById('rest-box'),
-      warning: document.getElementById('rest-warning'),
-      sumRange: document.getElementById('summary-rest-range'),
-      sumSub: document.getElementById('summary-rest-sub')
-    }
-  };
-
-  // 基础竞价输入联动
-  function onBaseBidInput(value) {
-    let val = parseFloat(value);
-    if (!isNaN(val) && val >= 0) {
-      state.baseBid = val;
-      baseSliderEl.value = Math.min(Math.max(val, 0.02), 10.00);
-      syncAllFromPct();
-      updateAll();
-    }
-  }
-
-  // 基础竞价专属滑块联动
-  function onBaseSliderInput(value) {
-    let val = parseFloat(value);
-    state.baseBid = val;
-    baseBidEl.value = val.toFixed(2);
-    syncAllFromPct();
-    updateAll();
-  }
-
-  function setBaseBid(val) {
-    baseBidEl.value = val.toFixed(2);
-    baseSliderEl.value = val;
-    state.baseBid = val;
-    syncAllFromPct();
-    updateAll();
-  }
-
-  function syncAllFromPct() {
-    syncFromPct('top');
-    syncFromPct('prod');
-    syncFromPct('rest');
-  }
-
-  function handleStrategyChange() {
-    const radios = document.getElementsByName('strategy');
-    for (const r of radios) {
-      if (r.checked) {
-        state.strategy = r.value;
+    // Placements configuration
+    const placements = [
+      {
+        key: 'topPct',
+        input: document.getElementById('topPctInput'),
+        slider: document.getElementById('topSlider'),
+        badge: document.getElementById('topBadge'),
+        effective: document.getElementById('topEffective'),
+        range: document.getElementById('topRange'),
+        detail: document.getElementById('topDetail'),
+        multiple: document.getElementById('topMultiple'),
+        sumRange: document.getElementById('sumTopRange'),
+        sumEffective: document.getElementById('sumTopEffective'),
+        ruleDesc: document.getElementById('topRuleDesc'),
+        baseDesc: '首页首屏最顶部'
+      },
+      {
+        key: 'restPct',
+        input: document.getElementById('restPctInput'),
+        slider: document.getElementById('restSlider'),
+        badge: document.getElementById('restBadge'),
+        effective: document.getElementById('restEffective'),
+        range: document.getElementById('restRange'),
+        detail: document.getElementById('restDetail'),
+        multiple: document.getElementById('restMultiple'),
+        sumRange: document.getElementById('sumRestRange'),
+        sumEffective: document.getElementById('sumRestEffective'),
+        ruleDesc: document.getElementById('restRuleDesc'),
+        baseDesc: '搜索结果第 2 页及后续位置'
+      },
+      {
+        key: 'productPct',
+        input: document.getElementById('productPctInput'),
+        slider: document.getElementById('productSlider'),
+        badge: document.getElementById('productBadge'),
+        effective: document.getElementById('productEffective'),
+        range: document.getElementById('productRange'),
+        detail: document.getElementById('productDetail'),
+        multiple: document.getElementById('productMultiple'),
+        sumRange: document.getElementById('sumProductRange'),
+        sumEffective: document.getElementById('sumProductEffective'),
+        ruleDesc: document.getElementById('productRuleDesc'),
+        baseDesc: 'ASIN 详情页广告位'
       }
-    }
-    document.getElementById('strat-down-card').classList.toggle('selected', state.strategy === 'down');
-    document.getElementById('strat-updown-card').classList.toggle('selected', state.strategy === 'updown');
-    document.getElementById('strat-fixed-card').classList.toggle('selected', state.strategy === 'fixed');
+    ];
 
-    updateAll();
-  }
+    // Base Bid Binding
+    baseBidInput.addEventListener('input', (e) => {
+      let val = parseFloat(e.target.value) || 0;
+      state.baseBid = val;
+      baseBidSlider.value = Math.min(val, 10.00);
+      render();
+    });
 
-  function onPctInput(type) {
-    let pct = parseInt(elements[type].pct.value) || 0;
-    if (pct < 0) pct = 0;
-    if (pct > 900) pct = 900;
-    
-    state[type + 'Pct'] = pct;
-    elements[type].slider.value = pct;
-    syncFromPct(type);
-    updateAll();
-  }
+    baseBidSlider.addEventListener('input', (e) => {
+      let val = parseFloat(e.target.value);
+      state.baseBid = val;
+      baseBidInput.value = val.toFixed(2);
+      render();
+    });
 
-  function onSliderInput(type) {
-    let pct = parseInt(elements[type].slider.value) || 0;
-    state[type + 'Pct'] = pct;
-    elements[type].pct.value = pct;
-    syncFromPct(type);
-    updateAll();
-  }
-
-  function onEffInput(type) {
-    let target = parseFloat(elements[type].eff.value) || 0;
-    if (state.baseBid <= 0) return;
-
-    let calcPct = Math.round(((target / state.baseBid) - 1) * 100);
-    if (calcPct < 0) calcPct = 0;
-    if (calcPct > 900) calcPct = 900;
-
-    state[type + 'Pct'] = calcPct;
-    elements[type].pct.value = calcPct;
-    elements[type].slider.value = calcPct;
-    updateAll();
-  }
-
-  function syncFromPct(type) {
-    let pct = state[type + 'Pct'];
-    let eff = state.baseBid * (1 + pct / 100);
-    elements[type].eff.value = eff.toFixed(2);
-  }
-
-  function calculateRange(effectiveBid, placement) {
-    let min = 0.00;
-    let max = effectiveBid;
-
-    if (state.strategy === 'down') {
-      min = 0.00;
-      max = effectiveBid;
-    } else if (state.strategy === 'fixed') {
-      min = effectiveBid;
-      max = effectiveBid;
-    } else if (state.strategy === 'updown') {
-      min = 0.00;
-      let upMultiplier = (placement === 'top') ? 2.0 : 1.5;
-      max = effectiveBid * upMultiplier;
+    function setBaseBid(amount) {
+      state.baseBid = amount;
+      baseBidInput.value = amount.toFixed(2);
+      baseBidSlider.value = amount;
+      render();
     }
 
-    return { min, max };
-  }
+    // Input & Slider Pair Binding (Step = 1)
+    placements.forEach(p => {
+      p.input.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value) || 0;
+        if (val < 0) val = 0;
+        if (val > 900) val = 900;
+        state[p.key] = val;
+        p.slider.value = val;
+        render();
+      });
+      p.slider.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value);
+        state[p.key] = val;
+        p.input.value = val;
+        render();
+      });
+    });
 
-  function formatRange(min, max) {
-    if (state.strategy === 'fixed') {
-      return `$${max.toFixed(2)}`;
+    // Strategy Switching
+    strategyCards.forEach(card => {
+      card.addEventListener('click', () => {
+        strategyCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        const radio = card.querySelector('input[type="radio"]');
+        radio.checked = true;
+        state.strategy = radio.value;
+        render();
+      });
+    });
+
+    // Dark Mode Toggle
+    themeToggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      themeToggleBtn.innerHTML = isDark ? '☀️ 浅色模式' : '🌙 深色模式';
+    });
+
+    // Core Calculation & UI Render
+    function render() {
+      let maxMultiplier = 1.0;
+      let minFloor = 0.0;
+      let strategyDescTag = '';
+
+      if (state.strategy === 'up_down') {
+        maxMultiplier = 2.0;
+        minFloor = 0.0;
+        strategyDescTag = '选“提高和降低”时上浮上限为 +100% (2.0x)';
+      } else if (state.strategy === 'down_only') {
+        maxMultiplier = 1.0;
+        minFloor = 0.0;
+        strategyDescTag = '选“仅降低”时最高不上浮 (1.0x)，低转化时可降至 100%';
+      } else if (state.strategy === 'fixed') {
+        maxMultiplier = 1.0;
+        minFloor = 1.0;
+        strategyDescTag = '固定竞价严格按有效出价执行，不上浮亦不降低';
+      } else if (state.strategy === 'rule_based') {
+        maxMultiplier = 5.0;
+        minFloor = 0.0;
+        strategyDescTag = '基于规则的竞价依据 ROAS 调优，上限可达 5.0x';
+      }
+
+      placements.forEach(p => {
+        const pct = state[p.key];
+        p.badge.textContent = `+${pct}%`;
+
+        // 目标有效竞价 = 基础竞价 * (1 + 溢价%)
+        const effectiveBid = state.baseBid * (1 + pct / 100);
+        const lowVal = (effectiveBid * minFloor).toFixed(2);
+        const highVal = (effectiveBid * maxMultiplier).toFixed(2);
+
+        p.effective.textContent = `$${effectiveBid.toFixed(2)}`;
+        p.detail.textContent = `有效竞价: $${effectiveBid.toFixed(2)}`;
+        p.sumEffective.textContent = `有效竞价: $${effectiveBid.toFixed(2)}`;
+
+        const rangeStr = state.strategy === 'fixed' 
+          ? `$${effectiveBid.toFixed(2)}` 
+          : `$${lowVal} - $${highVal}`;
+
+        p.range.textContent = rangeStr;
+        p.sumRange.textContent = rangeStr;
+
+        p.multiple.textContent = `最高 ×${maxMultiplier.toFixed(1)}`;
+        p.ruleDesc.textContent = `${p.baseDesc}，${strategyDescTag}`;
+      });
     }
-    return `$${min.toFixed(2)} - $${max.toFixed(2)}`;
-  }
 
-  function updatePlacement(type, isTop) {
-    const el = elements[type];
-    const pct = state[type + 'Pct'];
-    const eff = state.baseBid * (1 + pct / 100);
-    const range = calculateRange(eff, type);
-
-    el.badge.innerText = `+${pct}%`;
-
-    let multText = state.strategy === 'updown' ? (isTop ? '最高 ×2.0' : '最高 ×1.5') : (state.strategy === 'fixed' ? '锁定有效值' : '最高 ×1.0');
-    el.tag.innerText = multText;
-
-    el.range.innerText = formatRange(range.min, range.max);
-    el.effSub.innerText = `有效竞价: $${eff.toFixed(2)}`;
-
-    el.sumRange.innerText = formatRange(range.min, range.max);
-    el.sumSub.innerText = `有效竞价: $${eff.toFixed(2)}`;
-
-    const riskThreshold = isTop ? 3.0 : 2.5;
-    const isRisky = range.max >= (state.baseBid * riskThreshold) && state.baseBid > 0 && pct > 0;
-    if (isRisky) {
-      el.warning.style.display = 'flex';
-      el.box.classList.add('danger-glow');
-    } else {
-      el.warning.style.display = 'none';
-      el.box.classList.remove('danger-glow');
-    }
-  }
-
-  function updateAll() {
-    updatePlacement('top', true);
-    updatePlacement('prod', false);
-    updatePlacement('rest', false);
-  }
-
-  updateAll();
-</script>
-
+    render();
+  </script>
 </body>
 </html>
